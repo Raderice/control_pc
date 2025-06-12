@@ -3,6 +3,18 @@ const open = require('open');
 const loudness = require('loudness');
 
 const server = http.createServer(async (req, res) => {
+  // Добавляем CORS-заголовки для всех запросов
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Обработка preflight-запросов (OPTIONS)
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
+
   // Логируем все POST-запросы
   if (req.method === 'POST') {
     console.log(`Получена команда: ${req.url.replace('/', '').toUpperCase()}`);
@@ -10,12 +22,10 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'POST' && req.url === '/play') {
     console.log('Получена команда PLAY');
-    // Здесь можно добавить запуск воспроизведения, если нужно
     res.writeHead(200, {'Content-Type': 'text/plain'});
     res.end('OK');
   } else if (req.method === 'POST' && req.url === '/pause') {
     console.log('Получена команда PAUSE');
-    // Здесь можно добавить паузу
     res.writeHead(200, {'Content-Type': 'text/plain'});
     res.end('OK');
   } else if (req.method === 'POST' && req.url === '/open-youtube') {
@@ -37,7 +47,7 @@ const server = http.createServer(async (req, res) => {
     console.log('Громкость уменьшена:', vol);
     res.writeHead(200, {'Content-Type': 'text/plain'});
     res.end('OK');
-  } else {
+  } else if (req.method === 'POST') {
     res.writeHead(404, {'Content-Type': 'text/plain'});
     res.end('Not found');
   }
