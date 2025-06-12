@@ -7,12 +7,12 @@ if [ -z "$LOCAL_IP" ]; then
   LOCAL_IP=$(ifconfig | grep -oP 'inet\s+\K\d+(\.\d+){3}' | grep -v '^127\.' | head -n 1)
 fi
 
-# Установить зависимости для backend
-if [ ! -d "backend/node_modules" ]; then
-  cd backend
-  npm install
-  cd ..
-fi
+# # Установить зависимости для backend
+# if [ ! -d "backend/node_modules" ]; then
+#   cd backend
+#   npm install
+#   cd ..
+# fi
 
 # Установить зависимости для клиента
 if [ ! -d "node_modules" ]; then

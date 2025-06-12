@@ -9,12 +9,12 @@ for /f "tokens=2 delims=:" %%f in ('ipconfig ^| findstr /c:"IPv4"') do (
 :gotip
 set IP=%IP: =%
 
-REM Установить зависимости для backend
-if not exist backend\node_modules (
-    cd backend
-    call npm install
-    cd ..
-)
+@REM REM Установить зависимости для backend
+@REM if not exist backend\node_modules (
+@REM     cd backend
+@REM     call npm install
+@REM     cd ..
+@REM )
 
 REM Установить зависимости для клиента
 if not exist node_modules (
