@@ -43,6 +43,6 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(4000, () => {
+server.listen(4000, '0.0.0.0', () => {
   console.log('Сервер управления запущен на порту 4000');
 });
