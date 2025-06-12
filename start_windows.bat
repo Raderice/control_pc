@@ -1,5 +1,5 @@
 @echo off
-cd /d "%~dp0conrol_pz"
+cd /d "%~dp0control_pc"
 
 REM Получить локальный IP (берём первый IPv4)
 for /f "tokens=2 delims=:" %%f in ('ipconfig ^| findstr /c:"IPv4"') do (
@@ -21,13 +21,13 @@ if not exist node_modules (
     call npm install
 )
 
-REM Запуск серверной части
+REM Запуск серверной части в новом окне, окно не закрывается
 cd backend
-start "" cmd /c "node server.js > ..\server.log 2>&1"
+start "Backend Server" cmd /k "node server.js"
 cd ..
 
-REM Запуск клиентской части
-start "" cmd /c "npm start > client.log 2>&1"
+REM Запуск клиентской части в новом окне, окно не закрывается
+start "Client App" cmd /k "npm start"
 
 echo Сервер и клиент запущены.
 echo Откройте на телефоне: http://%IP%:3000
