@@ -3,6 +3,11 @@ const open = require('open');
 const loudness = require('loudness');
 
 const server = http.createServer(async (req, res) => {
+  // Логируем все POST-запросы
+  if (req.method === 'POST') {
+    console.log(`Получена команда: ${req.url.replace('/', '').toUpperCase()}`);
+  }
+
   if (req.method === 'POST' && req.url === '/play') {
     console.log('Получена команда PLAY');
     // Здесь можно добавить запуск воспроизведения, если нужно
