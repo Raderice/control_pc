@@ -1,6 +1,7 @@
 const http = require('http');
 const open = require('open');
 const loudness = require('loudness');
+const keySender = require('node-key-sender'); // Заменили robotjs
 
 const server = http.createServer(async (req, res) => {
   // Добавляем CORS-заголовки для всех запросов
@@ -47,7 +48,104 @@ const server = http.createServer(async (req, res) => {
     console.log('Громкость уменьшена:', vol);
     res.writeHead(200, {'Content-Type': 'text/plain'});
     res.end('OK');
-  } else if (req.method === 'POST') {
+  } else if (req.method === 'POST' && req.url === '/key') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      try {
+        const { key } = JSON.parse(body);
+
+        // Сопоставление label → keySender-код только для спецклавиш и символов
+        const keyMap = {
+          'Esc': 'escape',
+          'Tab': 'tab',
+          'CapsLock': 'caps_lock',
+          'Shift': 'shift',
+          'Ctrl': 'control',
+          'Alt': 'alt',
+          'Win': 'command',
+          'Menu': 'menu',
+          'Enter': 'enter',
+          'Backspace': 'backspace',
+          'Del': 'delete',
+          'Insert': 'insert',
+          'Home': 'home',
+          'End': 'end',
+          'PgUp': 'page_up',
+          'PgDn': 'page_down',
+          '↑': 'up',
+          '↓': 'down',
+          '←': 'left',
+          '→': 'right',
+          'PrtSc': 'print_screen',
+          'Scroll': 'scroll_lock',
+          'Pause': 'pause',
+          'NumLock': 'num_lock',
+          'Space': 'space',
+          // Символы
+          ';': 'semicolon',
+          ':': 'semicolon', // shift+semicolon даст :
+          '`': 'back_quote',
+          '~': 'back_quote', // shift+back_quote даст ~
+          "'": 'quote',
+          '"': 'quote', // shift+quote даст "
+          ',': 'comma',
+          '<': 'comma', // shift+comma даст <
+          '.': 'dot',
+          '>': 'dot', // shift+dot даст >
+          '/': 'slash',
+          '?': 'slash', // shift+slash даст ?
+          '\\': 'backslash',
+          '|': 'backslash', // shift+backslash даст |
+          '[': 'open_bracket',
+          '{': 'open_bracket', // shift+open_bracket даст {
+          ']': 'close_bracket',
+          '}': 'close_bracket', // shift+close_bracket даст }
+          '-': 'minus',
+          '_': 'minus', // shift+minus даст _
+          '=': 'equals',
+          '+': 'equals', // shift+equals даст +
+          // F1-F12
+          ...Object.fromEntries(Array.from({length:12},(_,i)=>[`F${i+1}`,`f${i+1}`])),
+        };
+
+        // Если спецклавиша или символ — используем keyMap
+        if (keyMap[key]) {
+          keySender.sendKey(keyMap[key])
+            .then(() => {
+              console.log('Нажата спецклавиша/символ:', key, '→', keyMap[key]);
+              res.writeHead(200, {'Content-Type': 'text/plain'});
+              res.end('OK');
+            })
+            .catch((err) => {
+              console.error('Ошибка отправки:', err);
+              res.writeHead(500, {'Content-Type': 'text/plain'});
+              res.end('Key send error');
+            });
+        } else if (/^[a-zA-Z0-9]$/.test(key)) {
+          // Буквы и цифры — просто символ в нижнем регистре
+          keySender.sendKey(key.toLowerCase())
+            .then(() => {
+              console.log('Нажата клавиша:', key.toLowerCase());
+              res.writeHead(200, {'Content-Type': 'text/plain'});
+              res.end('OK');
+            })
+            .catch((err) => {
+              console.error('Ошибка отправки:', err);
+              res.writeHead(500, {'Content-Type': 'text/plain'});
+              res.end('Key send error');
+            });
+        } else {
+          res.writeHead(400, {'Content-Type': 'text/plain'});
+          res.end('Unknown key');
+        }
+      } catch (e) {
+        res.writeHead(400, {'Content-Type': 'text/plain'});
+        res.end('Bad request');
+      }
+    });
+    return;
+  } else {
     res.writeHead(404, {'Content-Type': 'text/plain'});
     res.end('Not found');
   }
