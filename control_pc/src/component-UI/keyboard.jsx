@@ -2,10 +2,13 @@ import React from "react";
 
 const sendKeyCommand = async (key) => {
   try {
+    // Для спецклавиш отправляем label как есть, для букв/цифр — в нижнем регистре
+    const isAlphaNum = /^[a-zA-Z0-9]$/.test(key);
+    const sendKey = isAlphaNum ? key.toLowerCase() : key;
     await fetch(`http://${window.location.hostname}:4000/key`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key }),
+      body: JSON.stringify({ key: sendKey }),
     });
   } catch (e) {
     alert("Ошибка отправки команды на сервер");
