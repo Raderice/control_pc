@@ -9,13 +9,6 @@ for /f "tokens=2 delims=:" %%f in ('ipconfig ^| findstr /c:"IPv4"') do (
 :gotip
 set IP=%IP: =%
 
-@REM REM Установить зависимости для backend
-@REM if not exist backend\node_modules (
-@REM     cd backend
-@REM     call npm install
-@REM     cd ..
-@REM )
-
 REM Установить зависимости для клиента
 if not exist node_modules (
     call npm install
@@ -27,7 +20,7 @@ start "Backend Server" cmd /k "node server.js"
 cd ..
 
 REM Запуск клиентской части в новом окне, окно не закрывается
-start "Client App" cmd /k "npm start"
+start "Client App" cmd /k "npx react-scripts start"
 
 echo Сервер и клиент запущены.
 echo Откройте на телефоне: http://%IP%:3000
