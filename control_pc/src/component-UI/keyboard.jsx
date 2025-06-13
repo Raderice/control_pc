@@ -1,10 +1,71 @@
 import React from "react";
 
+// Карта спецклавиш и символов для отправки
+const KEY_MAP = {
+  Esc: "Esc",
+  Tab: "Tab",
+  CapsLock: "CapsLock",
+  Shift: "Shift",
+  Ctrl: "Ctrl",
+  Alt: "Alt",
+  Win: "Win",
+  Super: "Win",
+  Windows: "Win",
+  Menu: "Menu",
+  Enter: "Enter",
+  Backspace: "Backspace",
+  Del: "Del",
+  Insert: "Insert",
+  Home: "Home",
+  End: "End",
+  PgUp: "PgUp",
+  PgDn: "PgDn",
+  "↑": "↑",
+  "↓": "↓",
+  "←": "←",
+  "→": "→",
+  PrtSc: "PrtSc",
+  Scroll: "Scroll",
+  Pause: "Pause",
+  NumLock: "NumLock",
+  Space: "Space",
+  // Символы
+  ";": ";",
+  ":": ";",
+  "`": "`",
+  "~": "`",
+  "'": "'",
+  '"': "'",
+  ",": ",",
+  "<": ",",
+  ".": ".",
+  ">": ".",
+  "/": "/",
+  "?": "/",
+  "\\": "\\",
+  "|": "\\",
+  "[": "[",
+  "{": "[",
+  "]": "]",
+  "}": "]",
+  "-": "-",
+  "_": "-",
+  "=": "=",
+  "+": "=",
+  // F1-F12
+  ...Object.fromEntries(Array.from({ length: 12 }, (_, i) => [`F${i + 1}`, `F${i + 1}`])),
+};
+
 const sendKeyCommand = async (key) => {
   try {
-    // Для спецклавиш отправляем label как есть, для букв/цифр — в нижнем регистре
-    const isAlphaNum = /^[a-zA-Z0-9]$/.test(key);
-    const sendKey = isAlphaNum ? key.toLowerCase() : key;
+    let sendKey;
+    if (KEY_MAP[key]) {
+      sendKey = KEY_MAP[key];
+    } else if (/^[a-zA-Z0-9]$/.test(key)) {
+      sendKey = key.toLowerCase();
+    } else {
+      sendKey = key;
+    }
     await fetch(`http://${window.location.hostname}:4000/key`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

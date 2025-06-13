@@ -1,7 +1,9 @@
 const http = require('http');
 const open = require('open');
 const loudness = require('loudness');
-const keySender = require('node-key-sender'); // Заменили robotjs
+const keySender = require('node-key-sender');
+const os = require('os');
+const { exec } = require('child_process');
 
 const server = http.createServer(async (req, res) => {
   // Добавляем CORS-заголовки для всех запросов
@@ -55,7 +57,6 @@ const server = http.createServer(async (req, res) => {
       try {
         const { key } = JSON.parse(body);
 
-        // Сопоставление label → keySender-код только для спецклавиш и символов
         const keyMap = {
           'Esc': 'escape',
           'Tab': 'tab',
@@ -84,33 +85,57 @@ const server = http.createServer(async (req, res) => {
           'Space': 'space',
           // Символы
           ';': 'semicolon',
-          ':': 'semicolon', // shift+semicolon даст :
+          ':': 'semicolon',
           '`': 'back_quote',
-          '~': 'back_quote', // shift+back_quote даст ~
+          '~': 'back_quote',
           "'": 'quote',
-          '"': 'quote', // shift+quote даст "
+          '"': 'quote',
           ',': 'comma',
-          '<': 'comma', // shift+comma даст <
+          '<': 'comma',
           '.': 'dot',
-          '>': 'dot', // shift+dot даст >
+          '>': 'dot',
           '/': 'slash',
-          '?': 'slash', // shift+slash даст ?
+          '?': 'slash',
           '\\': 'backslash',
-          '|': 'backslash', // shift+backslash даст |
+          '|': 'backslash',
           '[': 'open_bracket',
-          '{': 'open_bracket', // shift+open_bracket даст {
+          '{': 'open_bracket',
           ']': 'close_bracket',
-          '}': 'close_bracket', // shift+close_bracket даст }
+          '}': 'close_bracket',
           '-': 'minus',
-          '_': 'minus', // shift+minus даст _
+          '_': 'minus',
           '=': 'equals',
-          '+': 'equals', // shift+equals даст +
-          // F1-F12
+          '+': 'equals',
           ...Object.fromEntries(Array.from({length:12},(_,i)=>[`F${i+1}`,`f${i+1}`])),
         };
 
-        // Если спецклавиша или символ — используем keyMap
-        if (keyMap[key]) {
+        // --- Исправление для Backspace на Linux ---
+        if (key === "Backspace" && os.platform() === "linux") {
+          exec('xdotool key BackSpace', (err) => {
+            if (err) {
+              console.error('Ошибка xdotool:', err);
+              res.writeHead(500, {'Content-Type': 'text/plain'});
+              res.end('xdotool error');
+            } else {
+              console.log('Нажата Backspace через xdotool');
+              res.writeHead(200, {'Content-Type': 'text/plain'});
+              res.end('OK');
+            }
+          });
+        // --- Можно добавить Win/Super аналогично, если нужно ---
+        // } else if ((key === "Win" || key === "Super") && os.platform() === "linux") {
+        //   exec('xdotool key Super_L', (err) => {
+        //     if (err) {
+        //       console.error('Ошибка xdotool:', err);
+        //       res.writeHead(500, {'Content-Type': 'text/plain'});
+        //       res.end('xdotool error');
+        //     } else {
+        //       console.log('Нажата Win/Super через xdotool');
+        //       res.writeHead(200, {'Content-Type': 'text/plain'});
+        //       res.end('OK');
+        //     }
+        //   });
+        } else if (keyMap[key]) {
           keySender.sendKey(keyMap[key])
             .then(() => {
               console.log('Нажата спецклавиша/символ:', key, '→', keyMap[key]);
@@ -123,7 +148,6 @@ const server = http.createServer(async (req, res) => {
               res.end('Key send error');
             });
         } else if (/^[a-zA-Z0-9]$/.test(key)) {
-          // Буквы и цифры — просто символ в нижнем регистре
           keySender.sendKey(key.toLowerCase())
             .then(() => {
               console.log('Нажата клавиша:', key.toLowerCase());
