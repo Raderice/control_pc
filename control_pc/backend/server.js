@@ -169,8 +169,7 @@ const server = http.createServer(async (req, res) => {
       }
     });
     return;
-<<<<<<< Updated upstream
-=======
+
   } else if (req.method === 'POST' && req.url === '/touchpad') {
     let body = '';
     req.on('data', chunk => { body += chunk; });
@@ -344,7 +343,7 @@ const server = http.createServer(async (req, res) => {
       }
     });
     return;
->>>>>>> Stashed changes
+
   } else {
     res.writeHead(404, {'Content-Type': 'text/plain'});
     res.end('Not found');
