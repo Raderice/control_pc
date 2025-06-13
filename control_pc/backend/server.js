@@ -5,6 +5,8 @@ const keySender = require('node-key-sender');
 const os = require('os');
 const { exec } = require('child_process');
 
+const nircmdPath = `${__dirname}\\nircmd.exe`;
+
 const server = http.createServer(async (req, res) => {
   // Добавляем CORS-заголовки для всех запросов
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -211,7 +213,7 @@ const server = http.createServer(async (req, res) => {
           } else if (platform === "win32") {
             // Windows: nircmd (https://www.nirsoft.net/utils/nircmd.html) должен быть в PATH
             // nircmd.exe перемещает мышь относительно текущей позиции
-            exec(`nircmd.exe movecursor ${Math.round(dx)} ${Math.round(dy)}`, (err) => {
+            exec(`"${nircmdPath}" movecursor ${Math.round(dx)} ${Math.round(dy)}`, (err) => {
               if (err) {
                 console.error('Ошибка nircmd:', err);
                 res.writeHead(500, {'Content-Type': 'text/plain'});
@@ -266,7 +268,7 @@ const server = http.createServer(async (req, res) => {
             });
           } else if (platform === "win32") {
             // nircmd: left, right, middle
-            exec(`nircmd.exe sendmouse ${button} click`, (err) => {
+            exec(`"${nircmdPath}" sendmouse ${button} click`, (err) => {
               if (err) {
                 res.writeHead(500, {'Content-Type': 'text/plain'});
                 res.end('nircmd click error');
@@ -307,7 +309,7 @@ const server = http.createServer(async (req, res) => {
             });
           } else if (platform === "win32") {
             // nircmd: wheel up/down
-            exec(`nircmd.exe sendmouse wheel ${direction === "up" ? "up" : "down"}`, (err) => {
+            exec(`"${nircmdPath}" sendmouse wheel ${direction === "up" ? "up" : "down"}`, (err) => {
               if (err) {
                 res.writeHead(500, {'Content-Type': 'text/plain'});
                 res.end('nircmd wheel error');
